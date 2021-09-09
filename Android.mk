@@ -43,6 +43,7 @@ COMMON_CFLAGS := -Wall -fPIC -fpic -fvisibility=hidden
 
 #qemu/tcg/arm运行机器的abi
 COMMON_INCLUDE := \
+                    android \
 					qemu/tcg/arm \
 					qemu \
 					qemu/include \
@@ -62,7 +63,7 @@ LOCAL_SRC_FILES := $(ARM_SRCS)
 #softmmu结尾的都是生成的目录
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
                     qemu/target-arm \
-					qemu/arm-softmmu 
+					android/arm-softmmu 
 
 					
 
@@ -86,7 +87,7 @@ LOCAL_SRC_FILES := $(ARM_SRCS)
 
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
                     qemu/target-arm \
-					qemu/armeb-softmmu
+					android/armeb-softmmu
 
 #armeb.h原理同arm.h
 LOCAL_CFLAGS := $(COMMON_CFLAGS) -include armeb.h
@@ -133,7 +134,7 @@ LOCAL_SRC_FILES :=  \
 
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
                     qemu/target-i386 \
-					qemu/x86_64-softmmu
+					android/x86_64-softmmu
 
 LOCAL_CFLAGS := $(COMMON_CFLAGS) -include x86_64.h
 
@@ -146,6 +147,7 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := unicorn
 LOCAL_C_INCLUDES := \
+                    android \
                     qemu \
                     qemu/include \
                     qemu/tcg \
