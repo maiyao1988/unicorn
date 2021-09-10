@@ -14,28 +14,28 @@
 LOCAL_PATH := $(call my-dir)
 
 ARM_SRCS := \
-        qemu/cpu-exec.c \
-        qemu/cpus.c \
-        qemu/cputlb.c \
-        qemu/exec.c \
-        qemu/fpu/softfloat.c \
-        qemu/hw/arm/tosa.c \
-        qemu/hw/arm/virt.c \
-        qemu/ioport.c \
-        qemu/memory.c \
-        qemu/memory_mapping.c \
-        qemu/target-arm/cpu.c \
-        qemu/target-arm/crypto_helper.c \
-        qemu/target-arm/helper.c \
-        qemu/target-arm/iwmmxt_helper.c \
-        qemu/target-arm/neon_helper.c \
-        qemu/target-arm/op_helper.c \
-        qemu/target-arm/psci.c \
-        qemu/target-arm/translate.c \
-        qemu/target-arm/unicorn_arm.c \
-        qemu/tcg/optimize.c \
-        qemu/tcg/tcg.c \
-        qemu/translate-all.c
+        $(LOCAL_PATH)/qemu/cpu-exec.c \
+        $(LOCAL_PATH)/qemu/cpus.c \
+        $(LOCAL_PATH)/qemu/cputlb.c \
+        $(LOCAL_PATH)/qemu/exec.c \
+        $(LOCAL_PATH)/qemu/fpu/softfloat.c \
+        $(LOCAL_PATH)/qemu/hw/arm/tosa.c \
+        $(LOCAL_PATH)/qemu/hw/arm/virt.c \
+        $(LOCAL_PATH)/qemu/ioport.c \
+        $(LOCAL_PATH)/qemu/memory.c \
+        $(LOCAL_PATH)/qemu/memory_mapping.c \
+        $(LOCAL_PATH)/qemu/target-arm/cpu.c \
+        $(LOCAL_PATH)/qemu/target-arm/crypto_helper.c \
+        $(LOCAL_PATH)/qemu/target-arm/helper.c \
+        $(LOCAL_PATH)/qemu/target-arm/iwmmxt_helper.c \
+        $(LOCAL_PATH)/qemu/target-arm/neon_helper.c \
+        $(LOCAL_PATH)/qemu/target-arm/op_helper.c \
+        $(LOCAL_PATH)/qemu/target-arm/psci.c \
+        $(LOCAL_PATH)/qemu/target-arm/translate.c \
+        $(LOCAL_PATH)/qemu/target-arm/unicorn_arm.c \
+        $(LOCAL_PATH)/qemu/tcg/optimize.c \
+        $(LOCAL_PATH)/qemu/tcg/tcg.c \
+        $(LOCAL_PATH)/qemu/translate-all.c
 
 COMMON_DEFS := -DNEED_CPU_H -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 
@@ -43,12 +43,12 @@ COMMON_CFLAGS := -Wall -fPIC -fpic -fvisibility=hidden
 
 #qemu/tcg/arm运行机器的abi
 COMMON_INCLUDE := \
-                    android \
-					qemu/tcg/arm \
-					qemu \
-					qemu/include \
-					qemu/tcg \
-                    include 
+                    $(LOCAL_PATH)/android \
+					$(LOCAL_PATH)/qemu/tcg/arm \
+					$(LOCAL_PATH)/qemu \
+					$(LOCAL_PATH)/qemu/include \
+					$(LOCAL_PATH)/qemu/tcg \
+                    $(LOCAL_PATH)/include 
 
 #arm
 include $(CLEAR_VARS)
@@ -62,8 +62,8 @@ LOCAL_SRC_FILES := $(ARM_SRCS)
 
 #softmmu结尾的都是生成的目录
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
-                    qemu/target-arm \
-					android/arm-softmmu 
+                    $(LOCAL_PATH)/qemu/target-arm \
+					$(LOCAL_PATH)/android/arm-softmmu 
 
 					
 
@@ -86,8 +86,8 @@ LOCAL_SRC_FILES := $(ARM_SRCS)
 
 
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
-                    qemu/target-arm \
-					android/armeb-softmmu
+                    $(LOCAL_PATH)/qemu/target-arm \
+					$(LOCAL_PATH)/android/armeb-softmmu
 
 #armeb.h原理同arm.h
 LOCAL_CFLAGS := $(COMMON_CFLAGS) -include armeb.h
@@ -101,40 +101,40 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := x86_64-softmmu
 
 LOCAL_SRC_FILES :=  \
-                    qemu/cpu-exec.c \
-                    qemu/cpus.c \
-                    qemu/cputlb.c \
-                    qemu/exec.c \
-                    qemu/fpu/softfloat.c \
-                    qemu/hw/i386/pc.c \
-                    qemu/hw/i386/pc_piix.c \
-                    qemu/hw/intc/apic.c \
-                    qemu/hw/intc/apic_common.c \
-                    qemu/ioport.c \
-                    qemu/memory.c \
-                    qemu/memory_mapping.c \
-                    qemu/target-i386/arch_memory_mapping.c \
-                    qemu/target-i386/cc_helper.c \
-                    qemu/target-i386/cpu.c \
-                    qemu/target-i386/excp_helper.c \
-                    qemu/target-i386/fpu_helper.c \
-                    qemu/target-i386/helper.c \
-                    qemu/target-i386/int_helper.c \
-                    qemu/target-i386/mem_helper.c \
-                    qemu/target-i386/misc_helper.c \
-                    qemu/target-i386/seg_helper.c \
-                    qemu/target-i386/smm_helper.c \
-                    qemu/target-i386/svm_helper.c \
-                    qemu/target-i386/translate.c \
-                    qemu/target-i386/unicorn.c \
-                    qemu/tcg/optimize.c \
-                    qemu/tcg/tcg.c \
-                    qemu/translate-all.c
+                    $(LOCAL_PATH)/qemu/cpu-exec.c \
+                    $(LOCAL_PATH)/qemu/cpus.c \
+                    $(LOCAL_PATH)/qemu/cputlb.c \
+                    $(LOCAL_PATH)/qemu/exec.c \
+                    $(LOCAL_PATH)/qemu/fpu/softfloat.c \
+                    $(LOCAL_PATH)/qemu/hw/i386/pc.c \
+                    $(LOCAL_PATH)/qemu/hw/i386/pc_piix.c \
+                    $(LOCAL_PATH)/qemu/hw/intc/apic.c \
+                    $(LOCAL_PATH)/qemu/hw/intc/apic_common.c \
+                    $(LOCAL_PATH)/qemu/ioport.c \
+                    $(LOCAL_PATH)/qemu/memory.c \
+                    $(LOCAL_PATH)/qemu/memory_mapping.c \
+                    $(LOCAL_PATH)/qemu/target-i386/arch_memory_mapping.c \
+                    $(LOCAL_PATH)/qemu/target-i386/cc_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/cpu.c \
+                    $(LOCAL_PATH)/qemu/target-i386/excp_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/fpu_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/int_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/mem_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/misc_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/seg_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/smm_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/svm_helper.c \
+                    $(LOCAL_PATH)/qemu/target-i386/translate.c \
+                    $(LOCAL_PATH)/qemu/target-i386/unicorn.c \
+                    $(LOCAL_PATH)/qemu/tcg/optimize.c \
+                    $(LOCAL_PATH)/qemu/tcg/tcg.c \
+                    $(LOCAL_PATH)/qemu/translate-all.c
 
 
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
-                    qemu/target-i386 \
-					android/x86_64-softmmu
+                    $(LOCAL_PATH)/qemu/target-i386 \
+					$(LOCAL_PATH)/android/x86_64-softmmu
 
 LOCAL_CFLAGS := $(COMMON_CFLAGS) -include x86_64.h
 
@@ -147,54 +147,54 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := unicorn
 LOCAL_C_INCLUDES := \
-                    android \
-                    qemu \
-                    qemu/include \
-                    qemu/tcg \
-                    include 
+                    $(LOCAL_PATH)/android \
+                    $(LOCAL_PATH)/qemu \
+                    $(LOCAL_PATH)/qemu/include \
+                    $(LOCAL_PATH)/qemu/tcg \
+                    $(LOCAL_PATH)/include 
 
 LOCAL_SRC_FILES :=  \
-                    list.c \
-                    qemu/accel.c \
-                    qemu/glib_compat.c \
-                    qemu/hw/core/machine.c \
-                    qemu/hw/core/qdev.c \
-                    qemu/qapi/qapi-dealloc-visitor.c \
-                    qemu/qapi/qapi-visit-core.c \
-                    qemu/qapi/qmp-input-visitor.c \
-                    qemu/qapi/qmp-output-visitor.c \
-                    qemu/qapi/string-input-visitor.c \
-                    qemu/qemu-log.c \
-                    qemu/qemu-timer.c \
-                    qemu/qobject/qbool.c \
-                    qemu/qobject/qdict.c \
-                    qemu/qobject/qerror.c \
-                    qemu/qobject/qfloat.c \
-                    qemu/qobject/qint.c \
-                    qemu/qobject/qlist.c \
-                    qemu/qobject/qstring.c \
-                    qemu/qom/container.c \
-                    qemu/qom/cpu.c \
-                    qemu/qom/object.c \
-                    qemu/qom/qom-qobject.c \
-                    qemu/tcg-runtime.c \
-                    qemu/util/aes.c \
-                    qemu/util/bitmap.c \
-                    qemu/util/bitops.c \
-                    qemu/util/crc32c.c \
-                    qemu/util/cutils.c \
-                    qemu/util/error.c \
-                    qemu/util/getauxval.c \
-                    qemu/util/host-utils.c \
-                    qemu/util/module.c \
-                    qemu/util/qemu-timer-common.c \
-                    qemu/vl.c \
-                    uc.c \
+                    $(LOCAL_PATH)/list.c \
+                    $(LOCAL_PATH)/qemu/accel.c \
+                    $(LOCAL_PATH)/qemu/glib_compat.c \
+                    $(LOCAL_PATH)/qemu/hw/core/machine.c \
+                    $(LOCAL_PATH)/qemu/hw/core/qdev.c \
+                    $(LOCAL_PATH)/qemu/qapi/qapi-dealloc-visitor.c \
+                    $(LOCAL_PATH)/qemu/qapi/qapi-visit-core.c \
+                    $(LOCAL_PATH)/qemu/qapi/qmp-input-visitor.c \
+                    $(LOCAL_PATH)/qemu/qapi/qmp-output-visitor.c \
+                    $(LOCAL_PATH)/qemu/qapi/string-input-visitor.c \
+                    $(LOCAL_PATH)/qemu/qemu-log.c \
+                    $(LOCAL_PATH)/qemu/qemu-timer.c \
+                    $(LOCAL_PATH)/qemu/qobject/qbool.c \
+                    $(LOCAL_PATH)/qemu/qobject/qdict.c \
+                    $(LOCAL_PATH)/qemu/qobject/qerror.c \
+                    $(LOCAL_PATH)/qemu/qobject/qfloat.c \
+                    $(LOCAL_PATH)/qemu/qobject/qint.c \
+                    $(LOCAL_PATH)/qemu/qobject/qlist.c \
+                    $(LOCAL_PATH)/qemu/qobject/qstring.c \
+                    $(LOCAL_PATH)/qemu/qom/container.c \
+                    $(LOCAL_PATH)/qemu/qom/cpu.c \
+                    $(LOCAL_PATH)/qemu/qom/object.c \
+                    $(LOCAL_PATH)/qemu/qom/qom-qobject.c \
+                    $(LOCAL_PATH)/qemu/tcg-runtime.c \
+                    $(LOCAL_PATH)/qemu/util/aes.c \
+                    $(LOCAL_PATH)/qemu/util/bitmap.c \
+                    $(LOCAL_PATH)/qemu/util/bitops.c \
+                    $(LOCAL_PATH)/qemu/util/crc32c.c \
+                    $(LOCAL_PATH)/qemu/util/cutils.c \
+                    $(LOCAL_PATH)/qemu/util/error.c \
+                    $(LOCAL_PATH)/qemu/util/getauxval.c \
+                    $(LOCAL_PATH)/qemu/util/host-utils.c \
+                    $(LOCAL_PATH)/qemu/util/module.c \
+                    $(LOCAL_PATH)/qemu/util/qemu-timer-common.c \
+                    $(LOCAL_PATH)/qemu/vl.c \
+                    $(LOCAL_PATH)/uc.c \
                     \
-                    qemu/util/oslib-posix.c \
-                    qemu/util/qemu-thread-posix.c \
-                    qemu/qapi-types.c \
-                    qemu/qapi-visit.c
+                    $(LOCAL_PATH)/qemu/util/oslib-posix.c \
+                    $(LOCAL_PATH)/qemu/util/qemu-thread-posix.c \
+                    $(LOCAL_PATH)/qemu/qapi-types.c \
+                    $(LOCAL_PATH)/qemu/qapi-visit.c
 
 LOCAL_CFLAGS := -Wall -fPIC -fvisibility=hidden -fstack-protector-strong
 
@@ -211,9 +211,9 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := sample_arm
 LOCAL_C_INCLUDES := \
-                    include 
+                    $(LOCAL_PATH)/include 
 
-LOCAL_SRC_FILES := samples/sample_arm.c
+LOCAL_SRC_FILES := $(LOCAL_PATH)/samples/sample_arm.c
                     
 
 LOCAL_CFLAGS := -Wall -fvisibility=hidden -fstack-protector-strong
@@ -231,9 +231,9 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 LOCAL_MODULE := mem_apis
 LOCAL_C_INCLUDES := \
-                    include 
+                    $(LOCAL_PATH)/include 
 
-LOCAL_SRC_FILES := samples/mem_apis.c
+LOCAL_SRC_FILES := $(LOCAL_PATH)/samples/mem_apis.c
                     
 
 LOCAL_CFLAGS := -Wall -fvisibility=hidden -fstack-protector-strong
