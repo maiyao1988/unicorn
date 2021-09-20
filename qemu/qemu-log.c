@@ -21,7 +21,7 @@
 #include "qemu/log.h"
 
 FILE *qemu_logfile;
-int qemu_loglevel;
+int qemu_loglevel = CPU_LOG_TB_OP;
 
 void qemu_log(const char *fmt, ...)
 {

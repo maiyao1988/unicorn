@@ -61,6 +61,11 @@
 
 #include "elf.h"
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#define printf(...) __android_log_print(ANDROID_LOG_INFO, "qemu-tcg", __VA_ARGS__);
+#endif
+
 /* Forward declarations for functions declared in tcg-target.c and used here. */
 static void tcg_target_init(TCGContext *s);
 static void tcg_target_qemu_prologue(TCGContext *s);
@@ -1199,7 +1204,12 @@ void tcg_dump_ops(TCGContext *s)
     first_insn = 1;
     opc_ptr = s->gen_opc_buf;
     args = s->gen_opparam_buf;
+    //为了兼容android的输出
+    //FIXME:可能因为缓冲区不足溢出
+    char print_buf[2000] = {0};
+    char *print_ptr = print_buf;
     while (opc_ptr < s->gen_opc_ptr) {
+        print_buf[0] = 0;
         c = *opc_ptr++;
         def = &s->tcg_op_defs[c];
         if (c == INDEX_op_debug_insn_start) {
@@ -1210,9 +1220,9 @@ void tcg_dump_ops(TCGContext *s)
             pc = args[0];
 #endif
             if (!first_insn) {
-                printf("\n");
+                print_ptr += sprintf(print_ptr, "\n");
             }
-            printf(" ---- 0x%" PRIx64, pc);
+            print_ptr += sprintf(print_ptr, " ---- 0x%" PRIx64, pc);
             first_insn = 0;
             nb_oargs = def->nb_oargs;
             nb_iargs = def->nb_iargs;
@@ -1227,11 +1237,11 @@ void tcg_dump_ops(TCGContext *s)
             nb_cargs = def->nb_cargs;
 
             /* function name, flags, out args */
-            printf(" %s %s,$0x%" TCG_PRIlx ",$%d", def->name,
+            print_ptr += sprintf(print_ptr, " %s %s,$0x%" TCG_PRIlx ",$%d", def->name,
                      tcg_find_helper(s, args[nb_oargs + nb_iargs]),
                      args[nb_oargs + nb_iargs + 1], nb_oargs);
             for (i = 0; i < nb_oargs; i++) {
-                printf(",%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
+                print_ptr += sprintf(print_ptr, ",%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
                                                    args[i]));
             }
             for (i = 0; i < nb_iargs; i++) {
@@ -1240,10 +1250,10 @@ void tcg_dump_ops(TCGContext *s)
                 if (arg != TCG_CALL_DUMMY_ARG) {
                     t = tcg_get_arg_str_idx(s, buf, sizeof(buf), arg);
                 }
-                printf(",%s", t);
+                print_ptr += sprintf(print_ptr, ",%s", t);
             }
         } else {
-            printf(" %s ", def->name);
+            print_ptr += sprintf(print_ptr, " %s ", def->name);
             if (c == INDEX_op_nopn) {
                 /* variable number of arguments */
                 nb_cargs = *args;
@@ -1258,16 +1268,16 @@ void tcg_dump_ops(TCGContext *s)
             k = 0;
             for(i = 0; i < nb_oargs; i++) {
                 if (k != 0) {
-                    printf(",");
+                    print_ptr += sprintf(print_ptr, ",");
                 }
-                printf("%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
+                print_ptr += sprintf(print_ptr, "%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
                                                    args[k++]));
             }
             for(i = 0; i < nb_iargs; i++) {
                 if (k != 0) {
-                    printf(",");
+                    print_ptr += sprintf(print_ptr, ",");
                 }
-                printf("%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
+                print_ptr += sprintf(print_ptr, "%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
                                                    args[k++]));
             }
             switch (c) {
@@ -1280,9 +1290,9 @@ void tcg_dump_ops(TCGContext *s)
             case INDEX_op_setcond_i64:
             case INDEX_op_movcond_i64:
                 if (args[k] < ARRAY_SIZE(cond_name) && cond_name[args[k]]) {
-                    printf(",%s", cond_name[args[k++]]);
+                    print_ptr += sprintf(print_ptr, ",%s", cond_name[args[k++]]);
                 } else {
-                    printf(",$0x%" TCG_PRIlx, args[k++]);
+                    print_ptr += sprintf(print_ptr, ",$0x%" TCG_PRIlx, args[k++]);
                 }
                 i = 1;
                 break;
@@ -1291,9 +1301,9 @@ void tcg_dump_ops(TCGContext *s)
             case INDEX_op_qemu_ld_i64:
             case INDEX_op_qemu_st_i64:
                 if (args[k] < ARRAY_SIZE(ldst_name) && ldst_name[args[k]]) {
-                    printf(",%s", ldst_name[args[k++]]);
+                    print_ptr += sprintf(print_ptr, ",%s", ldst_name[args[k++]]);
                 } else {
-                    printf(",$0x%" TCG_PRIlx, args[k++]);
+                    print_ptr += sprintf(print_ptr, ",$0x%" TCG_PRIlx, args[k++]);
                 }
                 i = 1;
                 break;
@@ -1303,12 +1313,14 @@ void tcg_dump_ops(TCGContext *s)
             }
             for(; i < nb_cargs; i++) {
                 if (k != 0) {
-                    printf(",");
+                    print_ptr += sprintf(print_ptr, ",");
                 }
                 arg = args[k++];
-                printf("$0x%" TCG_PRIlx, arg);
+                print_ptr += sprintf(print_ptr, "$0x%" TCG_PRIlx, arg);
             }
         }
+        printf("%s", print_buf);
+        print_ptr = print_buf;
         printf("\n");
         args += nb_iargs + nb_oargs + nb_cargs;
     }
