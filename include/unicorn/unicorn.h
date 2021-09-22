@@ -779,6 +779,13 @@ size_t uc_context_size(uc_engine *uc);
 UNICORN_EXPORT
 uc_err uc_context_free(uc_context *context);
 
+/*
+ * set if we should direct access host memory without memory mapping
+ * should call soon after uc_open
+ */
+UNICORN_EXPORT
+void set_direct_memory_access(uc_engine *uc, bool use_direct_memory_access);
+
 #ifdef __cplusplus
 }
 #endif

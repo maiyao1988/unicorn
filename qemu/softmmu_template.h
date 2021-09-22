@@ -194,6 +194,37 @@ WORD_TYPE helper_le_ld_name(CPUArchState *env, target_ulong addr, int mmu_idx,
     HOOK_FOREACH_VAR_DECLARE;
 
     struct uc_struct *uc = env->uc;
+
+    if (uc->_direct_memory_access) {
+        //my add, use direction memory access if enable;
+        if (READ_ACCESS_TYPE == MMU_DATA_LOAD) {
+            if (!uc->size_recur_mem) { // disabling read callback if in recursive call
+                HOOK_FOREACH(uc, hook, UC_HOOK_MEM_READ) {
+                    if (hook->to_delete)
+                        continue;
+                    if (!HOOK_BOUND_CHECK(hook, addr))
+                    continue;
+                    ((uc_cb_hookmem_t)hook->callback)(env->uc, UC_MEM_READ, addr, DATA_SIZE, 0, hook->user_data);
+                }
+            }
+        }
+        res = *(DATA_TYPE*)(addr);
+
+        // Unicorn: callback on successful read
+        if (READ_ACCESS_TYPE == MMU_DATA_LOAD) {
+            if (!uc->size_recur_mem) { // disabling read callback if in recursive call
+                HOOK_FOREACH(uc, hook, UC_HOOK_MEM_READ_AFTER) {
+                    if (hook->to_delete)
+                        continue;
+                    if (!HOOK_BOUND_CHECK(hook, addr))
+                    continue;
+                    ((uc_cb_hookmem_t)hook->callback)(env->uc, UC_MEM_READ_AFTER, addr, DATA_SIZE, res, hook->user_data);
+                }
+            }
+        }
+
+        return res;
+    }
     MemoryRegion *mr = memory_mapping(uc, addr);
 
     // memory might be still unmapped while reading or fetching
@@ -731,6 +762,23 @@ void helper_le_st_name(CPUArchState *env, target_ulong addr, DATA_TYPE val,
     HOOK_FOREACH_VAR_DECLARE;
 
     struct uc_struct *uc = env->uc;
+    if (uc->_direct_memory_access) {
+        //my add, direct write when enable
+        if (!uc->size_recur_mem) { // disabling write callback if in recursive call
+            // Unicorn: callback on memory write
+            HOOK_FOREACH(uc, hook, UC_HOOK_MEM_WRITE) {
+                if (hook->to_delete)
+                    continue;
+                if (!HOOK_BOUND_CHECK(hook, addr))
+                continue;
+                ((uc_cb_hookmem_t)hook->callback)(uc, UC_MEM_WRITE, addr, DATA_SIZE, val, hook->user_data);
+            }
+        }
+
+        *(DATA_TYPE*)addr = val;
+        return;
+    }
+
     MemoryRegion *mr = memory_mapping(uc, addr);
 
     if (!uc->size_recur_mem) { // disabling write callback if in recursive call

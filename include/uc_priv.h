@@ -252,6 +252,8 @@ struct uc_struct {
     uint64_t next_pc;   // save next PC for some special cases
     bool hook_insert;	// insert new hook at begin of the hook list (append by default)
     struct list saved_contexts; // The contexts saved by this uc_struct.
+
+    bool _direct_memory_access; //direct access host memory without maping, add by my
 };
 
 // Metadata stub for the variable-size cpu context used with uc_context_*()

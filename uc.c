@@ -162,6 +162,7 @@ uc_err uc_open(uc_arch arch, uc_mode mode, uc_engine **result)
         uc->address_spaces.tqh_first = NULL;
         uc->address_spaces.tqh_last = &uc->address_spaces.tqh_first;
 
+        uc->_direct_memory_access = false;
         switch(arch) {
             default:
                 break;
@@ -1404,4 +1405,9 @@ uc_err uc_context_free(uc_context *context)
         list_remove(&uc->saved_contexts, context);
     }
     return uc_free(context);
+}
+
+UNICORN_EXPORT
+void set_direct_memory_access(uc_engine *uc, bool use_direct_memory_access) {
+    uc->_direct_memory_access = use_direct_memory_access;
 }
