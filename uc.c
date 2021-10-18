@@ -648,10 +648,11 @@ uc_err uc_emu_start(uc_engine* uc, uint64_t begin, uint64_t until, uint64_t time
         // callback to count instructions must be run before everything else,
         // so instead of appending, we must insert the hook at the begin
         // of the hook list
+        bool old_insert = uc->hook_insert;
         uc->hook_insert = 1;
         err = uc_hook_add(uc, &uc->count_hook, UC_HOOK_CODE, hook_count_cb, NULL, 1, 0);
         // restore to append mode for uc_hook_add()
-        uc->hook_insert = 0;
+        uc->hook_insert = old_insert;
         if (err != UC_ERR_OK) {
             return err;
         }
@@ -1404,4 +1405,12 @@ uc_err uc_context_free(uc_context *context)
         list_remove(&uc->saved_contexts, context);
     }
     return uc_free(context);
+}
+
+//my add
+UNICORN_EXPORT
+uc_err uc_set_hook_insert(uc_engine *uc, bool is_insert)
+{
+    uc->hook_insert = is_insert;
+    return UC_ERR_OK;
 }
