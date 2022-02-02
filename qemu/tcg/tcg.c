@@ -1210,9 +1210,9 @@ void tcg_dump_ops(TCGContext *s)
             pc = args[0];
 #endif
             if (!first_insn) {
-                printf("\n");
+                qemu_log("\n");
             }
-            printf(" ---- 0x%" PRIx64, pc);
+            qemu_log(" ---- 0x%" PRIx64, pc);
             first_insn = 0;
             nb_oargs = def->nb_oargs;
             nb_iargs = def->nb_iargs;
@@ -1227,11 +1227,11 @@ void tcg_dump_ops(TCGContext *s)
             nb_cargs = def->nb_cargs;
 
             /* function name, flags, out args */
-            printf(" %s %s,$0x%" TCG_PRIlx ",$%d", def->name,
+            qemu_log(" %s %s,$0x%" TCG_PRIlx ",$%d", def->name,
                      tcg_find_helper(s, args[nb_oargs + nb_iargs]),
                      args[nb_oargs + nb_iargs + 1], nb_oargs);
             for (i = 0; i < nb_oargs; i++) {
-                printf(",%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
+                qemu_log(",%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
                                                    args[i]));
             }
             for (i = 0; i < nb_iargs; i++) {
@@ -1240,10 +1240,10 @@ void tcg_dump_ops(TCGContext *s)
                 if (arg != TCG_CALL_DUMMY_ARG) {
                     t = tcg_get_arg_str_idx(s, buf, sizeof(buf), arg);
                 }
-                printf(",%s", t);
+                qemu_log(",%s", t);
             }
         } else {
-            printf(" %s ", def->name);
+            qemu_log(" %s ", def->name);
             if (c == INDEX_op_nopn) {
                 /* variable number of arguments */
                 nb_cargs = *args;
@@ -1258,16 +1258,16 @@ void tcg_dump_ops(TCGContext *s)
             k = 0;
             for(i = 0; i < nb_oargs; i++) {
                 if (k != 0) {
-                    printf(",");
+                    qemu_log(",");
                 }
-                printf("%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
+                qemu_log("%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
                                                    args[k++]));
             }
             for(i = 0; i < nb_iargs; i++) {
                 if (k != 0) {
-                    printf(",");
+                    qemu_log(",");
                 }
-                printf("%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
+                qemu_log("%s", tcg_get_arg_str_idx(s, buf, sizeof(buf),
                                                    args[k++]));
             }
             switch (c) {
@@ -1280,9 +1280,9 @@ void tcg_dump_ops(TCGContext *s)
             case INDEX_op_setcond_i64:
             case INDEX_op_movcond_i64:
                 if (args[k] < ARRAY_SIZE(cond_name) && cond_name[args[k]]) {
-                    printf(",%s", cond_name[args[k++]]);
+                    qemu_log(",%s", cond_name[args[k++]]);
                 } else {
-                    printf(",$0x%" TCG_PRIlx, args[k++]);
+                    qemu_log(",$0x%" TCG_PRIlx, args[k++]);
                 }
                 i = 1;
                 break;
@@ -1291,9 +1291,9 @@ void tcg_dump_ops(TCGContext *s)
             case INDEX_op_qemu_ld_i64:
             case INDEX_op_qemu_st_i64:
                 if (args[k] < ARRAY_SIZE(ldst_name) && ldst_name[args[k]]) {
-                    printf(",%s", ldst_name[args[k++]]);
+                    qemu_log(",%s", ldst_name[args[k++]]);
                 } else {
-                    printf(",$0x%" TCG_PRIlx, args[k++]);
+                    qemu_log(",$0x%" TCG_PRIlx, args[k++]);
                 }
                 i = 1;
                 break;
@@ -1303,16 +1303,16 @@ void tcg_dump_ops(TCGContext *s)
             }
             for(; i < nb_cargs; i++) {
                 if (k != 0) {
-                    printf(",");
+                    qemu_log(",");
                 }
                 arg = args[k++];
-                printf("$0x%" TCG_PRIlx, arg);
+                qemu_log("$0x%" TCG_PRIlx, arg);
             }
         }
-        printf("\n");
+        qemu_log("\n");
         args += nb_iargs + nb_oargs + nb_cargs;
     }
-    printf("###########\n");
+    qemu_log("###########\n");
 }
 
 /* we give more priority to constraints with less registers */

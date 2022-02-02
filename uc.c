@@ -24,6 +24,7 @@
 
 #include "qemu/include/hw/boards.h"
 #include "qemu/include/qemu/queue.h"
+#include "qemu/include/qemu/log.h"
 
 static void free_table(gpointer key, gpointer value, gpointer data)
 {
@@ -1413,4 +1414,9 @@ uc_err uc_set_hook_insert(uc_engine *uc, bool is_insert)
 {
     uc->hook_insert = is_insert;
     return UC_ERR_OK;
+}
+
+void uc_set_qemu_log_file(FILE *f) {
+    qemu_logfile = f;
+    qemu_loglevel = CPU_LOG_TB_OP;
 }

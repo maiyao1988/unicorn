@@ -31,6 +31,10 @@ void qemu_log(const char *fmt, ...)
     if (qemu_logfile) {
         vfprintf(qemu_logfile, fmt, ap);
     }
+    else {
+        vfprintf(stdout, fmt, ap);
+    }
+
     va_end(ap);
 }
 

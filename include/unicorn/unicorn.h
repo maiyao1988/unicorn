@@ -783,6 +783,9 @@ uc_err uc_context_free(uc_context *context);
 UNICORN_EXPORT
 uc_err uc_set_hook_insert(uc_engine *uc, bool is_insert);
 
+UNICORN_EXPORT
+void uc_set_qemu_log_file(FILE *f);
+
 #ifdef __cplusplus
 }
 #endif
