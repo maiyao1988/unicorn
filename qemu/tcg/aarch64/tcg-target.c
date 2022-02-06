@@ -1102,8 +1102,9 @@ static void tcg_out_tlb_read(TCGContext *s, TCGReg addr_reg, TCGMemOp s_bits,
     /* Perform the address comparison. */
     tcg_out_cmp(s, (TARGET_LONG_BITS == 64), TCG_REG_X0, TCG_REG_X3, 0);
 
-    /* If not equal, we jump to the slow path. */
     *label_ptr = s->code_ptr;
+    /* If not equal, we jump to the slow path. */
+    //my add Unicorn: memory hook support
     if (HOOK_EXISTS(s->uc, UC_HOOK_MEM_WRITE) ||
             HOOK_EXISTS(s->uc, UC_HOOK_MEM_READ) ||
             HOOK_EXISTS(s->uc, UC_HOOK_MEM_READ_AFTER)) {
