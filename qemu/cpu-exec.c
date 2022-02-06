@@ -242,6 +242,13 @@ int cpu_exec(struct uc_struct *uc, CPUArchState *env)   // qq
                    spans two pages, we cannot safely do a direct
                    jump. */
                 if (next_tb != 0 && tb->page_addr[1] == -1) {
+                    //这里完成tb的链接 chaining,上一次执行tb就是next_tb变量，与本次准备执行的tb进行直接连接
+                    //关于条件两个分支的处理，若tb由条件指令跳出，则qemu设计有两条跳出指令，有两个patch的位置，根据不同的条件patch即可，例如
+                    //例如,生成的退出指令
+                    //cmp zf, 0
+                    //bne xxx
+                    //beq xxx2
+                    //有两个相反的跳出branch，分别patch这两个位置即可
                     tb_add_jump((TranslationBlock *)(next_tb & ~TB_EXIT_MASK),
                             next_tb & TB_EXIT_MASK, tb);
                 }
@@ -254,7 +261,8 @@ int cpu_exec(struct uc_struct *uc, CPUArchState *env)   // qq
                 barrier();
                 if (likely(!cpu->exit_request)) {
                     tc_ptr = tb->tc_ptr;
-                    /* execute the generated code */
+                    /* execute the generated code */ //my 这个next_tb实际上是上一次执行的tb，名字取得有问题
+                            // cpu_tb_exec返回值是本地执行tb的地址
                     next_tb = cpu_tb_exec(cpu, tc_ptr);	// qq
 
                     switch (next_tb & TB_EXIT_MASK) {

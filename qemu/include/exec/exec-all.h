@@ -145,7 +145,7 @@ struct TranslationBlock {
 #define CF_LAST_IO     0x8000 /* Last insn may be an IO access.  */
 
     void *tc_ptr;    /* pointer to the translated code */
-    /* next matching tb for physical address. */
+    /* next matching tb for physical address. */ //hashtable开放链表处理地址冲突法
     struct TranslationBlock *phys_hash_next;
     /* first and second physical page containing code. The lower bit
        of the pointer tells the index in page_next[] */
@@ -156,7 +156,7 @@ struct TranslationBlock {
        the code of this one. */
     uint16_t tb_next_offset[2]; /* offset of original jump target */
 #ifdef USE_DIRECT_JUMP
-    uint16_t tb_jmp_offset[2]; /* offset of jump instruction */
+    uint16_t tb_jmp_offset[2]; /* offset of jump instruction */ //
 #else
     uintptr_t tb_next[2]; /* address of jump generated code */
 #endif
@@ -164,8 +164,8 @@ struct TranslationBlock {
        the two least significant bits of the pointers to tell what is
        the next pointer: 0 = jmp_next[0], 1 = jmp_next[1], 2 =
        jmp_first */
-    struct TranslationBlock *jmp_next[2];
-    struct TranslationBlock *jmp_first;
+    struct TranslationBlock *jmp_next[2];   //这里是所有跳转到该block的链表，0,1分别表达怎么跳过来的，0表示条件没有成立跳过来来的，1相反
+    struct TranslationBlock *jmp_first;     //链表头指针 //初始化空链表的时候jmp_first会指向自己tb
     uint32_t icount;
 };
 
@@ -174,6 +174,7 @@ typedef struct TBContext TBContext;
 struct TBContext {
 
     TranslationBlock *tbs;
+    //ramaddr => tb的hashtable
     TranslationBlock *tb_phys_hash[CODE_GEN_PHYS_HASH_SIZE];
     int nb_tbs;
 

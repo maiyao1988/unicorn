@@ -234,7 +234,7 @@ struct CPUState {
 
     void *env_ptr; /* CPUArchState */
     struct TranslationBlock *current_tb;
-    struct TranslationBlock *tb_jmp_cache[TB_JMP_CACHE_SIZE];
+    struct TranslationBlock *tb_jmp_cache[TB_JMP_CACHE_SIZE];   //保存翻译过的tb的hashtable
     QTAILQ_ENTRY(CPUState) node;
 
     /* ice debug support */

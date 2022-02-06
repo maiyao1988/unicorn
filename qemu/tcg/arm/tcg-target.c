@@ -1640,14 +1640,14 @@ static inline void tcg_out_op(TCGContext *s, TCGOpcode opc,
 
     switch (opc) {
     case INDEX_op_exit_tb:
-        tcg_out_movi32(s, COND_AL, TCG_REG_R0, args[0]);
+        tcg_out_movi32(s, COND_AL, TCG_REG_R0, args[0]); //本tb的地址也就是exit_tb的参数会作为tb运行的返回值
         tcg_out_goto(s, COND_AL, tb_ret_addr);
         break;
     case INDEX_op_goto_tb:
         if (s->tb_jmp_offset) {
             /* Direct jump method */
             s->tb_jmp_offset[args[0]] = tcg_current_code_size(s);
-            tcg_out_b_noaddr(s, COND_AL);
+            tcg_out_b_noaddr(s, COND_AL);   //这个跳转开始只跳到下一条指令，当后续tb执行时候，会将这个地址修正成下一个tb的地址，就是所谓的block-chaining
         } else {
             /* Indirect jump method */
             intptr_t ptr = (intptr_t)(s->tb_next + args[0]);
