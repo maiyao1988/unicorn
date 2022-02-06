@@ -1104,7 +1104,14 @@ static void tcg_out_tlb_read(TCGContext *s, TCGReg addr_reg, TCGMemOp s_bits,
 
     /* If not equal, we jump to the slow path. */
     *label_ptr = s->code_ptr;
-    tcg_out_goto_cond_noaddr(s, TCG_COND_NE);
+    if (HOOK_EXISTS(s->uc, UC_HOOK_MEM_WRITE) ||
+            HOOK_EXISTS(s->uc, UC_HOOK_MEM_READ) ||
+            HOOK_EXISTS(s->uc, UC_HOOK_MEM_READ_AFTER)) {
+        tcg_out_goto_cond_noaddr(s, TCG_COND_ALWAYS);
+    }
+    else {
+        tcg_out_goto_cond_noaddr(s, TCG_COND_NE);
+    }
 }
 
 #endif /* CONFIG_SOFTMMU */

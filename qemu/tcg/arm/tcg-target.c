@@ -1485,7 +1485,14 @@ static void tcg_out_qemu_ld(TCGContext *s, const TCGArg *args, bool is64)
     /* This a conditional BL only to load a pointer within this opcode into LR
        for the slow path.  We will not be using the value for a tail call.  */
     label_ptr = s->code_ptr;
-    tcg_out_bl_noaddr(s, COND_NE);
+
+    //my add Unicorn: memory hook support
+    if (HOOK_EXISTS(s->uc, UC_HOOK_MEM_READ) || HOOK_EXISTS(s->uc, UC_HOOK_MEM_READ_AFTER)) {
+        tcg_out_bl_noaddr(s, COND_AL);
+    }
+    else {
+        tcg_out_bl_noaddr(s, COND_NE);
+    }
 
     tcg_out_qemu_ld_index(s, opc, datalo, datahi, addrlo, addend);
 
@@ -1615,7 +1622,16 @@ static void tcg_out_qemu_st(TCGContext *s, const TCGArg *args, bool is64)
 
     /* The conditional call must come last, as we're going to return here.  */
     label_ptr = s->code_ptr;
-    tcg_out_bl_noaddr(s, COND_NE);
+    //my add Unicorn: memory hook support
+    //这里的生成的代码逻辑是，如果tlb命中，则不走helper函数，即所谓slow_path,
+    //原来逻辑只有第一次出现tlb miss才会触发helper，这导致所有write read hook只会在第一次页miss才会触发，存在bug
+    //这里改成只要出现mem hook就生成无条件call helper逻辑，总是走slow path，可能会导致性能下降
+    if (HOOK_EXISTS(s->uc, UC_HOOK_MEM_WRITE)) {
+        tcg_out_bl_noaddr(s, COND_AL);
+    }
+    else {
+        tcg_out_bl_noaddr(s, COND_NE);
+    }
 
     add_qemu_ldst_label(s, false, opc, datalo, datahi, addrlo, addrhi,
                         mem_index, s->code_ptr, label_ptr);
