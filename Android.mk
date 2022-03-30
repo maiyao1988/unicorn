@@ -57,13 +57,17 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := arm-softmmu
 
 
-LOCAL_SRC_FILES := $(ARM_SRCS)
+LOCAL_SRC_FILES := $(ARM_SRCS) \
+	$(LOCAL_PATH)/qemu/tcg/arm/tcg-target.c
+
+#	-I/root/Desktop/projectsandbox/native-sandbox/app/jni/sandbox/unicorn/qemu/tcg/arm
 
 
 #softmmu结尾的都是生成的目录
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
                     $(LOCAL_PATH)/qemu/target-arm \
-					$(LOCAL_PATH)/android/arm-softmmu 
+					$(LOCAL_PATH)/android/arm-softmmu \
+					$(LOCAL_PATH)/qemu/tcg/arm
 
 					
 
@@ -73,7 +77,9 @@ LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
 #逻辑很绕
 LOCAL_CFLAGS := $(COMMON_CFLAGS) -include arm.h
 
-LOCAL_CFLAGS += $(COMMON_DEFS)
+LOCAL_CFLAGS += $(COMMON_DEFS)# -I/root/Desktop/projectsandbox/native-sandbox/app/jni/sandbox/unicorn/qemu/tcg/arm
+
+LOCAL_CFLAGS += -I$(LOCAL_PATH)/qemu/tcg/arm
 
 include $(BUILD_STATIC_LIBRARY)
 
