@@ -13,6 +13,27 @@
 
 LOCAL_PATH := $(call my-dir)
 
+
+COMMON_DEFS := -DNEED_CPU_H -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+
+COMMON_CFLAGS := -Wall -fPIC -fpic -fvisibility=hidden
+
+#qemu/tcg/arm运行机器的abi
+COMMON_INCLUDE := \
+                    $(LOCAL_PATH)/android \
+					$(LOCAL_PATH)/qemu \
+					$(LOCAL_PATH)/qemu/include \
+					$(LOCAL_PATH)/qemu/tcg \
+                    $(LOCAL_PATH)/include
+
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+	COMMON_INCLUDE += $(LOCAL_PATH)/qemu/tcg/arm
+else ifeq  ($(TARGET_ARCH_ABI),arm64-v8a)
+	COMMON_INCLUDE += $(LOCAL_PATH)/qemu/tcg/aarch64
+else
+	$(error Not a supported TARGET_ARCH_ABI: $(TARGET_ARCH_ABI))
+endif
+
 ARM_SRCS := \
         $(LOCAL_PATH)/qemu/cpu-exec.c \
         $(LOCAL_PATH)/qemu/cpus.c \
@@ -37,19 +58,6 @@ ARM_SRCS := \
         $(LOCAL_PATH)/qemu/tcg/tcg.c \
         $(LOCAL_PATH)/qemu/translate-all.c
 
-COMMON_DEFS := -DNEED_CPU_H -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
-
-COMMON_CFLAGS := -Wall -fPIC -fpic -fvisibility=hidden
-
-#qemu/tcg/arm运行机器的abi
-COMMON_INCLUDE := \
-                    $(LOCAL_PATH)/android \
-					$(LOCAL_PATH)/qemu/tcg/arm \
-					$(LOCAL_PATH)/qemu \
-					$(LOCAL_PATH)/qemu/include \
-					$(LOCAL_PATH)/qemu/tcg \
-                    $(LOCAL_PATH)/include 
-
 #arm
 include $(CLEAR_VARS)
 
@@ -64,8 +72,6 @@ LOCAL_SRC_FILES := $(ARM_SRCS)
 LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
                     $(LOCAL_PATH)/qemu/target-arm \
 					$(LOCAL_PATH)/android/arm-softmmu 
-
-					
 
 #注意，这里-include 参数是强制每个源文件都包含arm.h 这个实际上是qemu/arm.h
 #实际上#define ARM_REGS_STORAGE_SIZE ARM_REGS_STORAGE_SIZE_arm，将ARM_REGS_STORAGE_SIZE define走
@@ -95,6 +101,67 @@ LOCAL_CFLAGS := $(COMMON_CFLAGS) -include armeb.h
 LOCAL_CFLAGS += $(COMMON_DEFS)
 
 include $(BUILD_STATIC_LIBRARY)
+
+ARM64_SRCS := \
+			$(LOCAL_PATH)/qemu/cpu-exec.c \
+			$(LOCAL_PATH)/qemu/cpus.c \
+			$(LOCAL_PATH)/qemu/cputlb.c \
+			$(LOCAL_PATH)/qemu/exec.c \
+			$(LOCAL_PATH)/qemu/fpu/softfloat.c \
+			$(LOCAL_PATH)/qemu/hw/arm/tosa.c \
+			$(LOCAL_PATH)/qemu/hw/arm/virt.c \
+			$(LOCAL_PATH)/qemu/ioport.c \
+			$(LOCAL_PATH)/qemu/memory.c \
+			$(LOCAL_PATH)/qemu/memory_mapping.c \
+			$(LOCAL_PATH)/qemu/target-arm/cpu.c \
+			$(LOCAL_PATH)/qemu/target-arm/cpu64.c \
+			$(LOCAL_PATH)/qemu/target-arm/crypto_helper.c \
+			$(LOCAL_PATH)/qemu/target-arm/helper-a64.c \
+			$(LOCAL_PATH)/qemu/target-arm/helper.c \
+			$(LOCAL_PATH)/qemu/target-arm/iwmmxt_helper.c \
+			$(LOCAL_PATH)/qemu/target-arm/neon_helper.c \
+			$(LOCAL_PATH)/qemu/target-arm/op_helper.c \
+			$(LOCAL_PATH)/qemu/target-arm/psci.c \
+			$(LOCAL_PATH)/qemu/target-arm/translate-a64.c \
+			$(LOCAL_PATH)/qemu/target-arm/translate.c \
+			$(LOCAL_PATH)/qemu/target-arm/unicorn_aarch64.c \
+			$(LOCAL_PATH)/qemu/tcg/optimize.c \
+			$(LOCAL_PATH)/qemu/tcg/tcg.c \
+			$(LOCAL_PATH)/qemu/translate-all.c
+#aarch64
+include $(CLEAR_VARS)
+LOCAL_MODULE := aarch64-softmmu
+
+
+LOCAL_SRC_FILES := $(ARM64_SRCS)
+
+
+LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
+                    $(LOCAL_PATH)/qemu/target-arm \
+					$(LOCAL_PATH)/android/aarch64-softmmu
+
+LOCAL_CFLAGS := $(COMMON_CFLAGS) -include aarch64.h
+
+LOCAL_CFLAGS += $(COMMON_DEFS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+#aarch64eb
+include $(CLEAR_VARS)
+LOCAL_MODULE := aarch64eb-softmmu
+
+LOCAL_SRC_FILES := $(ARM64_SRCS)
+
+LOCAL_C_INCLUDES := $(COMMON_INCLUDE) \
+                    $(LOCAL_PATH)/qemu/target-arm \
+					$(LOCAL_PATH)/android/aarch64eb-softmmu
+
+LOCAL_CFLAGS := $(COMMON_CFLAGS) -include aarch64eb.h
+
+LOCAL_CFLAGS += $(COMMON_DEFS)
+
+include $(BUILD_STATIC_LIBRARY)
+
 
 #x86_64
 include $(CLEAR_VARS)
@@ -198,9 +265,9 @@ LOCAL_SRC_FILES :=  \
 
 LOCAL_CFLAGS := -Wall -fPIC -fvisibility=hidden -fstack-protector-strong
 
-LOCAL_CFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUNICORN_HAS_ARM -DUNICORN_HAS_ARMEB -DUNICORN_HAS_X86
+LOCAL_CFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUNICORN_HAS_ARM -DUNICORN_HAS_ARMEB -DUNICORN_HAS_ARM64 -DUNICORN_HAS_ARM64EB -DUNICORN_HAS_X86
 
-LOCAL_STATIC_LIBRARIES := arm-softmmu armeb-softmmu x86_64-softmmu
+LOCAL_STATIC_LIBRARIES := arm-softmmu armeb-softmmu aarch64-softmmu aarch64eb-softmmu x86_64-softmmu
 LOCAL_LDLIBS += -llog
 include $(BUILD_SHARED_LIBRARY)
 
