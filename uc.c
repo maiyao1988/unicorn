@@ -797,8 +797,8 @@ uc_err uc_mem_map_ptr(uc_engine *uc, uint64_t address, size_t size, uint32_t per
 {
     uc_err res;
 
-    if (ptr == NULL)
-        return UC_ERR_ARG;
+//    if (ptr == NULL)
+//        return UC_ERR_ARG;
 
     if (uc->mem_redirect) {
         address = uc->mem_redirect(address);
