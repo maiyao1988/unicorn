@@ -338,8 +338,6 @@ static void * const qemu_st_helpers[16] = {
 };
 #endif
 
-static tcg_insn_unit *tb_ret_addr;
-
 /* A list of relevant facilities used by this translator.  Some of these
    are required for proper operation, and these are checked at startup.  */
 
@@ -1698,7 +1696,7 @@ static inline void tcg_out_op(TCGContext *s, TCGOpcode opc,
     case INDEX_op_exit_tb:
         /* return value */
         tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_R2, args[0]);
-        tgen_gotoi(s, S390_CC_ALWAYS, tb_ret_addr);
+        tgen_gotoi(s, S390_CC_ALWAYS, s->tb_ret_addr);
         break;
 
     case INDEX_op_goto_tb:
@@ -2333,7 +2331,7 @@ static void tcg_target_qemu_prologue(TCGContext *s)
     /* br %r3 (go to TB) */
     tcg_out_insn(s, RR, BCR, S390_CC_ALWAYS, tcg_target_call_iarg_regs[1]);
 
-    tb_ret_addr = s->code_ptr;
+    s->tb_ret_addr = s->code_ptr;
 
     /* lmg %r6,%r15,fs+48(%r15) (restore registers) */
     tcg_out_insn(s, RXY, LMG, TCG_REG_R6, TCG_REG_R15, TCG_REG_R15,

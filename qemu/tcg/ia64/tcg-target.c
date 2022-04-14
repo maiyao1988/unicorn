@@ -781,8 +781,6 @@ static inline int tcg_target_const_match(tcg_target_long val, TCGType type,
  * Code generation
  */
 
-static tcg_insn_unit *tb_ret_addr;
-
 static inline void tcg_out_bundle(TCGContext *s, int template,
                                   uint64_t slot0, uint64_t slot1,
                                   uint64_t slot2)
@@ -877,7 +875,7 @@ static void tcg_out_exit_tb(TCGContext *s, tcg_target_long arg)
         opc1 = INSN_NOP_M;
     }
 
-    imm = tb_ret_addr - s->code_ptr;
+    imm = s->tb_ret_addr - s->code_ptr;
 
     tcg_out_bundle(s, mLX,
                    opc1,
@@ -2369,7 +2367,7 @@ static void tcg_target_qemu_prologue(TCGContext *s)
                    tcg_opc_b4 (TCG_REG_P0, OPC_BR_SPTK_MANY_B4, TCG_REG_B6));
 
     /* epilogue */
-    tb_ret_addr = s->code_ptr;
+    s->tb_ret_addr = s->code_ptr;
     tcg_out_bundle(s, miI,
                    INSN_NOP_M,
                    tcg_opc_i21(TCG_REG_P0, OPC_MOV_I21,

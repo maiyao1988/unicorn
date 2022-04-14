@@ -1646,8 +1646,6 @@ static void tcg_out_qemu_st(TCGContext *s, const TCGArg *args, bool is64)
 #endif
 }
 
-static tcg_insn_unit *tb_ret_addr;
-
 static inline void tcg_out_op(TCGContext *s, TCGOpcode opc,
                 const TCGArg *args, const int *const_args)
 {
@@ -1657,7 +1655,7 @@ static inline void tcg_out_op(TCGContext *s, TCGOpcode opc,
     switch (opc) {
     case INDEX_op_exit_tb:
         tcg_out_movi32(s, COND_AL, TCG_REG_R0, args[0]); //本tb的地址也就是exit_tb的参数会作为tb运行的返回值
-        tcg_out_goto(s, COND_AL, tb_ret_addr);
+        tcg_out_goto(s, COND_AL, s->tb_ret_addr);
         break;
     case INDEX_op_goto_tb:
         if (s->tb_jmp_offset) {
@@ -2082,7 +2080,7 @@ static void tcg_target_qemu_prologue(TCGContext *s)
     tcg_out_mov(s, TCG_TYPE_PTR, TCG_AREG0, tcg_target_call_iarg_regs[0]);
 
     tcg_out_bx(s, COND_AL, tcg_target_call_iarg_regs[1]);
-    tb_ret_addr = s->code_ptr;
+    s->tb_ret_addr = s->code_ptr;
 
     /* Epilogue.  We branch here via tb_ret_addr.  */
     tcg_out_dat_rI(s, COND_AL, ARITH_ADD, TCG_REG_CALL_STACK,

@@ -78,8 +78,6 @@
 #define TCG_CT_CONST_ZERO 0x1000
 #define TCG_CT_CONST_MONE 0x2000
 
-static tcg_insn_unit *tb_ret_addr;
-
 #ifndef GUEST_BASE
 #define GUEST_BASE 0
 #endif
@@ -633,7 +631,7 @@ static void tcg_out_movi(TCGContext *s, TCGType type, TCGReg ret,
         int32_t high;
 
         if (USE_REG_RA) {
-            intptr_t diff = arg - (intptr_t)tb_ret_addr;
+            intptr_t diff = arg - (intptr_t)s->tb_ret_addr;
             if (diff == (int32_t)diff) {
                 tcg_out_mem_long(s, ADDI, ADD, ret, TCG_REG_RA, diff);
                 return;
@@ -1790,32 +1788,32 @@ static void tcg_target_qemu_prologue(TCGContext *s)
     if (USE_REG_RA) {
 #ifdef _CALL_AIX
         /* Make the caller load the value as the TOC into R2.  */
-        tb_ret_addr = s->code_ptr + 2;
-        desc[1] = tb_ret_addr;
+        s->tb_ret_addr = s->code_ptr + 2;
+        desc[1] = s->tb_ret_addr;
         tcg_out_mov(s, TCG_TYPE_PTR, TCG_REG_RA, TCG_REG_R2);
         tcg_out32(s, BCCTR | BO_ALWAYS);
 #elif defined(_CALL_ELF) && _CALL_ELF == 2
         /* Compute from the incoming R12 value.  */
-        tb_ret_addr = s->code_ptr + 2;
+        s->tb_ret_addr = s->code_ptr + 2;
         tcg_out32(s, ADDI | TAI(TCG_REG_RA, TCG_REG_R12,
-                                tcg_ptr_byte_diff(tb_ret_addr, s->code_buf)));
+                                tcg_ptr_byte_diff(s->tb_ret_addr, s->code_buf)));
         tcg_out32(s, BCCTR | BO_ALWAYS);
 #else
         /* Reserve max 5 insns for the constant load.  */
-        tb_ret_addr = s->code_ptr + 6;
-        tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_RA, (intptr_t)tb_ret_addr);
+        s->tb_ret_addr = s->code_ptr + 6;
+        tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_RA, (intptr_t)s->tb_ret_addr);
         tcg_out32(s, BCCTR | BO_ALWAYS);
-        while (s->code_ptr < tb_ret_addr) {
+        while (s->code_ptr < s->tb_ret_addr) {
             tcg_out32(s, NOP);
         }
 #endif
     } else {
         tcg_out32(s, BCCTR | BO_ALWAYS);
-        tb_ret_addr = s->code_ptr;
+        s->tb_ret_addr = s->code_ptr;
     }
 
     /* Epilogue */
-    assert(tb_ret_addr == s->code_ptr);
+    assert(s->tb_ret_addr == s->code_ptr);
 
     tcg_out_ld(s, TCG_TYPE_PTR, TCG_REG_R0, TCG_REG_R1, FRAME_SIZE+LR_OFFSET);
     for (i = 0; i < ARRAY_SIZE(tcg_target_callee_save_regs); ++i) {
@@ -1836,7 +1834,7 @@ static void tcg_out_op(TCGContext *s, TCGOpcode opc, const TCGArg *args,
     switch (opc) {
     case INDEX_op_exit_tb:
         if (USE_REG_RA) {
-            ptrdiff_t disp = tcg_pcrel_diff(s, tb_ret_addr);
+            ptrdiff_t disp = tcg_pcrel_diff(s, s->tb_ret_addr);
 
             /* If we can use a direct branch, otherwise use the value in RA.
                Note that the direct branch is always forward.  If it's in
@@ -1851,7 +1849,7 @@ static void tcg_out_op(TCGContext *s, TCGOpcode opc, const TCGArg *args,
             }
         }
         tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_R3, args[0]);
-        tcg_out_b(s, 0, tb_ret_addr);
+        tcg_out_b(s, 0, s->tb_ret_addr);
         break;
     case INDEX_op_goto_tb:
         if (s->tb_jmp_offset) {

@@ -121,8 +121,6 @@ static const TCGReg tcg_target_call_oarg_regs[2] = {
     TCG_REG_V1
 };
 
-static tcg_insn_unit *tb_ret_addr;
-
 static inline uint32_t reloc_pc16_val(tcg_insn_unit *pc, tcg_insn_unit *target)
 {
     /* Let the compiler perform the right-shift as part of the arithmetic.  */
@@ -1343,9 +1341,9 @@ static inline void tcg_out_op(TCGContext *s, TCGOpcode opc,
                 tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_V0, a0 & ~0xffff);
                 b0 = TCG_REG_V0;
             }
-            if (!tcg_out_opc_jmp(s, OPC_J, tb_ret_addr)) {
+            if (!tcg_out_opc_jmp(s, OPC_J, s->tb_ret_addr)) {
                 tcg_out_movi(s, TCG_TYPE_PTR, TCG_TMP0,
-                             (uintptr_t)tb_ret_addr);
+                             (uintptr_t)s->tb_ret_addr);
                 tcg_out_opc_reg(s, OPC_JR, 0, TCG_TMP0, 0);
             }
             tcg_out_opc_imm(s, OPC_ORI, TCG_REG_V0, b0, a0 & 0xffff);
@@ -1761,7 +1759,7 @@ static void tcg_target_qemu_prologue(TCGContext *s)
     /* Call generated code */
     tcg_out_opc_reg(s, OPC_JR, 0, tcg_target_call_iarg_regs[1], 0);
     tcg_out_mov(s, TCG_TYPE_PTR, TCG_AREG0, tcg_target_call_iarg_regs[0]);
-    tb_ret_addr = s->code_ptr;
+    s->tb_ret_addr = s->code_ptr;
 
     /* TB epilogue */
     for(i = 0 ; i < ARRAY_SIZE(tcg_target_callee_save_regs) ; i++) {
